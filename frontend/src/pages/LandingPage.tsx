@@ -7,10 +7,9 @@ import {
 import {
   Work as WorkIcon, People as PeopleIcon,
   Psychology as PsychologyIcon, TrendingUp as TrendingUpIcon,
-  LocationOn, Business, ArrowForward,
+  LocationOn, ArrowForward,
   AutoGraph as AutoGraphIcon, 
   Public as PublicIcon,
-  Star as StarIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { jobApi } from '../api/jobs';
@@ -521,100 +520,142 @@ export const LandingPage: React.FC = () => {
               <Box sx={{ textAlign: 'center', py: 8 }}><CircularProgress /></Box>
             ) : (
               <Grid container spacing={3.5}>
-                {jobs.slice(0, 6).map((job) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={job.id}>
-                    <Card 
-                      variant="outlined"
-                      sx={{ 
-                        height: '100%', 
-                        display: 'flex', 
-                        flexDirection: 'column',
-                        borderRadius: 4.5,
-                        borderColor: 'rgba(27, 42, 74, 0.06)',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        bgcolor: '#ffffff',
-                        '&:hover': { 
-                          borderColor: 'primary.main', 
-                          transform: 'translateY(-6px)', 
-                          boxShadow: '0 16px 35px rgba(27, 42, 74, 0.05), 0 0 0 1px rgba(126,200,69,0.1)' 
-                        }
-                      }}
-                    >
-                      <CardContent sx={{ flex: 1, p: 3.5 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2.5 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 800, color: '#1B2A4A', lineHeight: 1.3 }}>{job.title}</Typography>
-                          <StarIcon sx={{ color: '#7EC845', fontSize: 22, ml: 1 }} />
-                        </Box>
-                        
-                        <Stack direction="row" spacing={1.2} sx={{ mb: 3 }}>
-                          <Chip 
-                            icon={<LocationOn sx={{ fontSize: '13px !important', color: 'primary.main !important' }} />}
-                            label={job.location} 
-                            size="small" 
+                {jobs.slice(0, 6).map((job, i) => {
+                  const ACCENTS = ['#7EC845', '#1B2A4A', '#7EC845', '#1B2A4A'];
+                  const a = ACCENTS[i % ACCENTS.length];
+                  return (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={job.id}>
+                      <Card 
+                        sx={{ 
+                          height: '100%', 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          borderRadius: 5, 
+                          border: '1px solid', 
+                          borderColor: 'divider', 
+                          bgcolor: '#fff', 
+                          transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)', 
+                          '&:hover': { 
+                            transform: 'translateY(-8px)', 
+                            boxShadow: '0 24px 60px rgba(0,0,0,0.08)', 
+                            borderColor: '#7EC845' 
+                          } 
+                        }}
+                      >
+                        <Box sx={{ height: 6, background: `linear-gradient(90deg, ${a}, ${alpha(a, 0.4)})` }} />
+                        <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                            <Avatar 
+                              sx={{ 
+                                width: 52, 
+                                height: 52, 
+                                bgcolor: alpha(a, 0.08), 
+                                color: a, 
+                                fontWeight: 900, 
+                                fontSize: '1.1rem', 
+                                border: `1px solid ${alpha(a, 0.1)}` 
+                              }}
+                            >
+                              {(job.client_name || job.title)[0]}
+                            </Avatar>
+                            <Box>
+                              {job.client_name && (
+                                <Typography 
+                                  variant="caption" 
+                                  sx={{ 
+                                    color: a, 
+                                    fontWeight: 800, 
+                                    display: 'block', 
+                                    textTransform: 'uppercase', 
+                                    letterSpacing: '0.02em' 
+                                  }}
+                                >
+                                  {job.client_name}
+                                </Typography>
+                              )}
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                                <LocationOn sx={{ fontSize: 15 }} />
+                                <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                                  {job.location || 'Remote'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                          <Typography variant="h6" sx={{ fontWeight: 900, mb: 2, color: '#1B2A4A', lineHeight: 1.3 }}>
+                            {job.title}
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
                             sx={{ 
-                              bgcolor: alpha('#7EC845', 0.08), 
-                              color: 'primary.dark', 
-                              fontWeight: 600, 
-                              height: 24,
-                              borderRadius: 1.5,
-                              px: 0.5
-                            }} 
-                          />
-                          <Chip 
-                            icon={<Business sx={{ fontSize: '13px !important', color: 'secondary.main !important' }} />}
-                            label={job.sector} 
-                            size="small" 
-                            sx={{ 
-                              bgcolor: alpha('#1B2A4A', 0.05), 
-                              color: 'secondary.main', 
-                              fontWeight: 600, 
-                              height: 24,
-                              borderRadius: 1.5,
-                              px: 0.5
-                            }} 
-                          />
-                        </Stack>
-
-                        <Typography 
-                          variant="body2" 
-                          color="text.secondary" 
-                          sx={{ 
-                            lineHeight: 1.65, 
-                            display: '-webkit-box', 
-                            WebkitLineClamp: 3, 
-                            WebkitBoxOrient: 'vertical', 
-                            overflow: 'hidden' 
-                          }}
-                        >
-                          {job.description}
-                        </Typography>
-                      </CardContent>
-                      
-                      <Box sx={{ px: 3.5, pb: 3.5 }}>
-                        <Tooltip title="View full mandate details and apply" arrow>
-                          <Button 
-                            fullWidth 
-                            variant="contained" 
-                            color="secondary" 
-                            onClick={() => navigate('/jobs')} 
-                            sx={{ 
-                              borderRadius: 2.5, 
-                              py: 1.4,
-                              fontWeight: 700,
-                              boxShadow: 'none',
-                              '&:hover': {
-                                bgcolor: '#0D1B2A',
-                                boxShadow: 'none'
-                              }
+                              mb: 3, 
+                              lineHeight: 1.8, 
+                              display: '-webkit-box', 
+                              WebkitLineClamp: 3, 
+                              WebkitBoxOrient: 'vertical', 
+                              overflow: 'hidden', 
+                              fontSize: '0.9rem' 
                             }}
                           >
-                            Apply Now
-                          </Button>
-                        </Tooltip>
-                      </Box>
-                    </Card>
-                  </Grid>
-                ))}
+                            {job.description}
+                          </Typography>
+                          
+                          <Stack direction="row" spacing={1} sx={{ mb: 3, flexWrap: "wrap", gap: 1 }}>
+                            <Chip 
+                              label={job.sector} 
+                              size="small" 
+                              variant="outlined" 
+                              sx={{ 
+                                borderRadius: 1.5, 
+                                fontSize: '0.7rem', 
+                                fontWeight: 700, 
+                                height: 26, 
+                                borderColor: alpha(a, 0.3), 
+                                color: a 
+                              }} 
+                            />
+                            <Chip 
+                              label="Exclusive" 
+                              size="small" 
+                              sx={{ 
+                                borderRadius: 1.5, 
+                                fontSize: '0.7rem', 
+                                height: 26, 
+                                bgcolor: alpha('#7EC845', 0.08), 
+                                color: '#5F9F2F', 
+                                fontWeight: 700 
+                              }} 
+                            />
+                          </Stack>
+                          
+                          <Divider sx={{ mb: 3, opacity: 0.5 }} />
+                          
+                          <Box sx={{ mt: 'auto' }}>
+                            <Button 
+                              fullWidth 
+                              variant="contained" 
+                              endIcon={<ArrowForward />} 
+                              onClick={() => navigate('/register')} 
+                              sx={{ 
+                                borderRadius: 3, 
+                                py: 1.5, 
+                                fontSize: '0.95rem', 
+                                fontWeight: 800, 
+                                bgcolor: a, 
+                                '&:hover': { 
+                                  bgcolor: alpha(a, 0.9), 
+                                  boxShadow: `0 8px 20px ${alpha(a, 0.25)}` 
+                                } 
+                              }}
+                            >
+                              Sign Up to Apply
+                            </Button>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  );
+                })}
               </Grid>
             )}
           </Container>
