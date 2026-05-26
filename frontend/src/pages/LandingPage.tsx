@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, Button, Card, CardContent, Grid, Chip, Stack,
-  Container, CircularProgress, alpha, Divider, Avatar, AvatarGroup,
+  Container, CircularProgress, alpha, Divider, Avatar,
   Tooltip,
 } from '@mui/material';
 import {
@@ -42,8 +42,6 @@ const features = [
     desc: 'From Cape Town to Lagos, we provide cross-border recruitment solutions powered by intelligent data analysis.' 
   },
 ];
-
-const clientNames = ['Financial Giants', 'Tech Unicorns', 'Global Innovators', 'E-commerce Leaders', 'Mining Conglomerates'];
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
