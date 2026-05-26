@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { Email as EmailIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { authApi } from '../../api/auth';
-import { LandingNav } from '../../components/layout/LandingNav';
 
 export const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -50,7 +49,6 @@ export const ForgotPasswordPage: React.FC = () => {
         backgroundColor: '#F8FAFC',
       }}
     >
-      <LandingNav />
       {/* ── Animated gradient background ──────────────────── */}
       <Box
         sx={{

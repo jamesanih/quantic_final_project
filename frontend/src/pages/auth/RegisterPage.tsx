@@ -26,7 +26,6 @@ import {
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppStore';
 import { register, clearError } from '../../store/slices/authSlice';
 import type { Role } from '../../types';
-import { LandingNav } from '../../components/layout/LandingNav';
 
 export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -64,7 +63,6 @@ export const RegisterPage: React.FC = () => {
         backgroundColor: '#F8FAFC',
       }}
     >
-      <LandingNav />
       {/* ── Animated gradient background ──────────────────── */}
       <Box
         sx={{
@@ -126,7 +124,7 @@ export const RegisterPage: React.FC = () => {
       >
         <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Box component="img" src="/logo.png" alt="Tumaini AI" sx={{ height: 48, mx: 'auto', mb: 2.5, display: 'block' }} />
+            <Box component="img" src="/logo.png" alt="Tumaini AI" sx={{ height: 56, mx: 'auto', mb: 2.5, display: 'block' }} />
             <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>Create Account</Typography>
             <Typography variant="body1" color="text.secondary">Join Tumaini AI Recruitment Platform</Typography>
           </Box>

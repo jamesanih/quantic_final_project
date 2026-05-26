@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { Lock as LockIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { authApi } from '../../api/auth';
-import { LandingNav } from '../../components/layout/LandingNav';
 
 export const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -57,7 +56,6 @@ export const ResetPasswordPage: React.FC = () => {
         backgroundColor: '#F8FAFC',
       }}
     >
-      <LandingNav />
       {/* ── Animated gradient background ──────────────────── */}
       <Box
         sx={{

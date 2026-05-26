@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppStore';
 import { login, fetchCurrentUser, clearError } from '../../store/slices/authSlice';
-import { LandingNav } from '../../components/layout/LandingNav';
+
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -57,7 +57,6 @@ export const LoginPage: React.FC = () => {
         backgroundColor: '#F8FAFC',
       }}
     >
-      <LandingNav />
       {/* ── Animated gradient background ──────────────────── */}
       <Box
         sx={{
