@@ -76,18 +76,58 @@ export const CVManagement: React.FC = () => {
 
   useEffect(() => { fetchCVs(); }, []);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+  const [isDragging, setIsDragging] = useState(false);
+
+  const processBulkFiles = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
     setIsUploading(true);
     setUploadError(null);
     try {
-      const uploaded = await cvApi.bulkUpload(Array.from(files));
+      const acceptedFiles = Array.from(files).filter(f => 
+        f.type === 'application/pdf' || 
+        f.name.endsWith('.pdf') || 
+        f.name.endsWith('.docx') || 
+        f.name.endsWith('.doc')
+      );
+      if (acceptedFiles.length === 0) {
+        setUploadError('Only PDF and Word (DOCX) files are supported for resume uploading.');
+        setIsUploading(false);
+        return;
+      }
+      const uploaded = await cvApi.bulkUpload(acceptedFiles);
       setCvs(prev => [...uploaded, ...prev]);
     } catch {
       setUploadError('Bulk upload failed. Please try again.');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      await processBulkFiles(files);
+    }
+    event.target.value = '';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!isUploading) setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isUploading) return;
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      await processBulkFiles(files);
     }
   };
 
@@ -119,12 +159,17 @@ export const CVManagement: React.FC = () => {
 
       {/* ── Upload zone ───────────────────────────────────── */}
       <Card
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         sx={{
           mb: 4,
-          bgcolor: alpha('#7EC845', 0.04),
-          border: `2px dashed ${alpha('#7EC845', 0.3)}`,
+          bgcolor: isDragging ? alpha('#7EC845', 0.08) : alpha('#7EC845', 0.04),
+          border: `2px dashed ${isDragging ? '#7EC845' : alpha('#7EC845', 0.3)}`,
           borderRadius: 4,
           transition: 'all 200ms ease',
+          transform: isDragging ? 'scale(1.015)' : 'none',
+          boxShadow: isDragging ? '0 12px 32px rgba(126, 200, 69, 0.18)' : 'none',
           '&:hover': {
             borderColor: alpha('#7EC845', 0.5),
             bgcolor: alpha('#7EC845', 0.06),
@@ -148,26 +193,31 @@ export const CVManagement: React.FC = () => {
             <UploadIcon sx={{ fontSize: 28, color: 'primary.main' }} />
           </Box>
           <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Bulk CV Upload
+            {isDragging ? 'DROP YOUR RESUMES HERE!' : 'Bulk CV Upload'}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Drop multiple PDF CVs here or click to browse. Files will be parsed and indexed for semantic search.
+            Drag and drop candidate CVs here, or click to browse.<br/>
+            <Typography component="span" variant="caption" sx={{ display: 'block', mt: 0.5, opacity: 0.8 }}>
+              Supported formats: PDF, DOCX (Max 5MB per file)
+            </Typography>
           </Typography>
           <input
-            accept="application/pdf"
+            accept="application/pdf,.doc,.docx"
             style={{ display: 'none' }}
-            id="bulk-cv-upload"
+            id="cv-upload-button"
             multiple
             type="file"
             onChange={handleFileChange}
+            disabled={isUploading}
           />
-          <label htmlFor="bulk-cv-upload">
+          <label htmlFor="cv-upload-button">
             <Button
               variant="contained"
               component="span"
               disabled={isUploading}
               startIcon={isUploading ? <CircularProgress size={20} color="inherit" /> : <UploadIcon />}
               size="large"
+              sx={{ borderRadius: 2 }}
             >
               {isUploading ? 'Uploading & Parsing...' : 'Select Files'}
             </Button>

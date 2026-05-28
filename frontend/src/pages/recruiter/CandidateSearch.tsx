@@ -32,7 +32,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/useAppStore';
 import { searchCandidates, setQuery } from '../../store/slices/searchSlice';
 import { fetchJobs } from '../../store/slices/jobSlice';
 import { shortlistApi } from '../../api/matching';
-import { MatchExplanationModal } from '../../components/recruiter/MatchExplanationModal';
+import { CandidateDetailsModal } from '../../components/recruiter/CandidateDetailsModal';
 import type { SearchResult } from '../../types';
 
 export const CandidateSearch: React.FC = () => {
@@ -278,8 +278,10 @@ export const CandidateSearch: React.FC = () => {
             <Card
               key={candidate.candidate_id}
               variant="outlined"
+              onClick={() => handleOpenExplanation(candidate)}
               sx={{
                 borderColor: 'divider',
+                cursor: 'pointer',
                 transition: 'all 200ms ease',
                 '&:hover': {
                   borderColor: 'primary.main',
@@ -341,7 +343,7 @@ export const CandidateSearch: React.FC = () => {
                           variant="outlined"
                           startIcon={<PsychologyIcon />}
                           size="small"
-                          onClick={() => handleOpenExplanation(candidate)}
+                          onClick={(e) => { e.stopPropagation(); handleOpenExplanation(candidate); }}
                           sx={{ borderRadius: 2 }}
                         >
                           Explain
@@ -353,7 +355,7 @@ export const CandidateSearch: React.FC = () => {
                           startIcon={<AddIcon />}
                           size="small"
                           color="secondary"
-                          onClick={() => handleShortlist(candidate)}
+                          onClick={(e) => { e.stopPropagation(); handleShortlist(candidate); }}
                           sx={{ borderRadius: 2 }}
                         >
                           Shortlist
@@ -383,7 +385,7 @@ export const CandidateSearch: React.FC = () => {
         </Box>
       )}
 
-      <MatchExplanationModal
+      <CandidateDetailsModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         candidate={selectedCandidate}

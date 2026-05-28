@@ -13,6 +13,8 @@ import {
   IconButton,
   CircularProgress,
   alpha,
+  Chip,
+  Tooltip,
 } from '@mui/material';
 import {
   Visibility,
@@ -20,6 +22,7 @@ import {
   Email as EmailIcon,
   Lock as LockIcon,
   ArrowBack as ArrowBackIcon,
+  FlashOn as FlashOnIcon,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppStore';
 import { login, fetchCurrentUser, clearError } from '../../store/slices/authSlice';
@@ -155,6 +158,116 @@ export const LoginPage: React.FC = () => {
             <Typography variant="body1" color="text.secondary">
               Sign in to your Tumaini AI portal
             </Typography>
+          </Box>
+
+          {/* ── Demo credentials banner ───────────────────── */}
+          <Box
+            sx={{
+              mb: 3,
+              p: 2,
+              borderRadius: 2.5,
+              background: `linear-gradient(135deg, ${alpha('#7EC845', 0.08)} 0%, ${alpha('#6834A4', 0.06)} 100%)`,
+              border: `1px solid ${alpha('#7EC845', 0.25)}`,
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 3,
+                background: 'linear-gradient(90deg, #7EC845 0%, #6834A4 100%)',
+              }}
+            />
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Chip
+                  label="DEMO"
+                  size="small"
+                  sx={{
+                    bgcolor: '#7EC845',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.08em',
+                    height: 20,
+                  }}
+                />
+                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Test Credentials
+                </Typography>
+              </Box>
+              <Tooltip title="Auto-fill demo credentials" arrow>
+                <Button
+                  size="small"
+                  startIcon={<FlashOnIcon />}
+                  onClick={() => {
+                    setEmail('admin@tumaini.ai');
+                    setPassword('AdminPassword123!');
+                  }}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    borderRadius: 1.5,
+                    px: 1.5,
+                    py: 0.5,
+                    bgcolor: alpha('#7EC845', 0.15),
+                    color: '#3d7a1f',
+                    '&:hover': { bgcolor: alpha('#7EC845', 0.25) },
+                  }}
+                >
+                  Use these
+                </Button>
+              </Tooltip>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <EmailIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  Email:
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    color: 'text.primary',
+                    bgcolor: alpha('#000', 0.04),
+                    px: 0.8,
+                    py: 0.2,
+                    borderRadius: 1,
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  admin@tumaini.ai
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <LockIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  Password:
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    color: 'text.primary',
+                    bgcolor: alpha('#000', 0.04),
+                    px: 0.8,
+                    py: 0.2,
+                    borderRadius: 1,
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  AdminPassword123!
+                </Typography>
+              </Box>
+            </Box>
           </Box>
 
           {/* ── Error alert ──────────────────────────────── */}

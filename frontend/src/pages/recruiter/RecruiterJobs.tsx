@@ -19,7 +19,7 @@ import { vectorApi } from '../../api/vector';
 import { shortlistApi } from '../../api/matching';
 import { jobApi } from '../../api/jobs';
 import type { Job, SearchResult } from '../../types';
-import { MatchExplanationModal } from '../../components/recruiter/MatchExplanationModal';
+import { CandidateDetailsModal } from '../../components/recruiter/CandidateDetailsModal';
 
 const statusConfig: Record<string, { color: 'success' | 'error' | 'warning' | 'default'; label: string; bg: string }> = {
   OPEN:   { color: 'success', label: 'Active', bg: '#E8F5E9' },
@@ -82,10 +82,9 @@ export const RecruiterJobs: React.FC = () => {
   };
 
   const [isParsing, setIsParsing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleDescriptionUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const processJobDescriptionFile = async (file: File) => {
     setIsParsing(true);
     try {
       const formData = new FormData();
@@ -107,7 +106,43 @@ export const RecruiterJobs: React.FC = () => {
       alert("Failed to parse the job description document. Please copy/paste manually or try again.");
     } finally {
       setIsParsing(false);
-      event.target.value = '';
+    }
+  };
+
+  const handleDescriptionUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await processJobDescriptionFile(file);
+    event.target.value = '';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!isParsing) setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isParsing) return;
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (
+        file.type === 'application/pdf' ||
+        file.type === 'text/plain' ||
+        file.name.endsWith('.txt') ||
+        file.name.endsWith('.docx') ||
+        file.name.endsWith('.doc')
+      ) {
+        await processJobDescriptionFile(file);
+      } else {
+        alert("Unsupported file format. Please upload a PDF, DOCX, or TXT file.");
+      }
     }
   };
   const handleShortlist = async (c: SearchResult) => {
@@ -236,24 +271,31 @@ export const RecruiterJobs: React.FC = () => {
         <DialogContent sx={{ p: 3 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             {!isEditing && (
-              <Box sx={{ 
-                p: 2.5, 
-                border: '2px dashed', 
-                borderColor: isParsing ? 'primary.main' : alpha('#7EC845', 0.4), 
-                borderRadius: 3, 
-                bgcolor: alpha('#7EC845', 0.03), 
-                textAlign: 'center',
-                transition: 'all 200ms ease',
-                '&:hover': { bgcolor: alpha('#7EC845', 0.06), borderColor: '#7EC845' }
-              }}>
+              <Box
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                sx={{ 
+                  p: 2.5, 
+                  border: '2px dashed', 
+                  borderColor: isParsing ? 'primary.main' : isDragging ? '#7EC845' : alpha('#7EC845', 0.4), 
+                  borderRadius: 3, 
+                  bgcolor: isDragging ? alpha('#7EC845', 0.08) : alpha('#7EC845', 0.03), 
+                  textAlign: 'center',
+                  transition: 'all 200ms ease',
+                  transform: isDragging ? 'scale(1.02)' : 'none',
+                  boxShadow: isDragging ? '0 8px 24px rgba(126, 200, 69, 0.15)' : 'none',
+                  '&:hover': { bgcolor: alpha('#7EC845', 0.06), borderColor: '#7EC845' }
+                }}
+              >
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'primary.main', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                  <PsychologyIcon fontSize="small" /> AI MANDATE AUTO-FILL (OPTIONAL)
+                  <PsychologyIcon fontSize="small" /> {isDragging ? 'DROP YOUR JOB SPEC HERE!' : 'AI MANDATE AUTO-FILL (OPTIONAL)'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2, maxWidth: 380, mx: 'auto', lineHeight: 1.4 }}>
-                  Upload a PDF or TXT job description document. Our DeepSeek AI will instantly parse all the details and pre-populate this form!
+                  {isDragging ? 'Release to instantly parse the document details using AI!' : 'Upload or drag and drop a PDF, Word (DOCX) or TXT job description document. Our DeepSeek AI will instantly parse all the details and pre-populate this form!'}
                 </Typography>
                 <input
-                  accept="application/pdf,text/plain"
+                  accept="application/pdf,text/plain,.doc,.docx"
                   style={{ display: 'none' }}
                   id="job-description-upload"
                   type="file"
@@ -338,7 +380,7 @@ export const RecruiterJobs: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <MatchExplanationModal open={explanationModalOpen} onClose={() => setExplanationModalOpen(false)} candidate={selectedCandidate} />
+      <CandidateDetailsModal open={explanationModalOpen} onClose={() => setExplanationModalOpen(false)} candidate={selectedCandidate} />
     </Box>
   );
 };

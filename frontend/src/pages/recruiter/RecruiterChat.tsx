@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import { vectorApi } from '../../api/vector';
 import { shortlistApi } from '../../api/matching';
+import { CandidateDetailsModal } from '../../components/recruiter/CandidateDetailsModal';
 import type { SearchResult } from '../../types';
 
 const pulse = keyframes`
@@ -40,6 +41,7 @@ export const RecruiterChat: React.FC = () => {
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<SearchResult | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -159,7 +161,7 @@ export const RecruiterChat: React.FC = () => {
                   <Box sx={{ ml: '50px', mt: 1.5 }}>
                     <Stack spacing={1}>
                       {msg.candidates.map(c => (
-                        <Card key={c.candidate_id} elevation={0} sx={{ borderRadius: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: '#fff', '&:hover': { borderColor: '#7EC845', boxShadow: `0 2px 12px ${alpha('#7EC845', 0.1)}` }, transition: 'all 200ms ease' }}>
+                        <Card key={c.candidate_id} elevation={0} onClick={() => setSelectedCandidate(c)} sx={{ borderRadius: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: '#fff', cursor: 'pointer', '&:hover': { borderColor: '#7EC845', boxShadow: `0 2px 12px ${alpha('#7EC845', 0.1)}` }, transition: 'all 200ms ease' }}>
                           <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                             <Grid container spacing={1.5} sx={{ alignItems: "center" }}>
                               <Grid size={{ xs: 12, sm: 5 }}>
@@ -181,7 +183,7 @@ export const RecruiterChat: React.FC = () => {
                               <Grid size={{ xs: 12, sm: 5 }}>
                                 <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", alignItems: "center" }}>
                                   {c.matched_skills.slice(0, 3).map(s => <Chip key={s} label={s} size="small" color="success" variant="outlined" sx={{ height: 20, fontSize: '0.65rem', borderRadius: 1 }} />)}
-                                  <Button size="small" variant="outlined" color="secondary" onClick={() => handleShortlist(c)} sx={{ borderRadius: 2, fontSize: '0.7rem', px: 1.5, py: 0.2, flexShrink: 0 }}>+</Button>
+                                  <Button size="small" variant="outlined" color="secondary" onClick={(e) => { e.stopPropagation(); handleShortlist(c); }} sx={{ borderRadius: 2, fontSize: '0.7rem', px: 1.5, py: 0.2, flexShrink: 0 }}>+</Button>
                                 </Stack>
                               </Grid>
                             </Grid>
@@ -221,6 +223,13 @@ export const RecruiterChat: React.FC = () => {
       <Typography variant="caption" color="text.disabled" sx={{ textAlign: 'center', mt: 1 }}>
         AI may produce inaccurate information. Verify before making hiring decisions.
       </Typography>
+
+      {/* Candidate Detail Modal */}
+      <CandidateDetailsModal
+        open={!!selectedCandidate}
+        onClose={() => setSelectedCandidate(null)}
+        candidate={selectedCandidate}
+      />
     </Box>
   );
 };

@@ -52,20 +52,51 @@ export const CandidateProfile: React.FC = () => {
     fetchMyCV();
   }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const [isDragging, setIsDragging] = useState(false);
 
+  const processCVFile = async (file: File) => {
     setIsUploading(true);
     setError(null);
-
     try {
+      if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+        setError('Only PDF resumes are supported.');
+        setIsUploading(false);
+        return;
+      }
       const uploadedCv = await cvApi.upload(file);
       setCv(uploadedCv);
     } catch (err) {
       setError('Failed to upload CV. Please try again.');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      await processCVFile(file);
+    }
+    event.target.value = '';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!isUploading) setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isUploading) return;
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processCVFile(file);
     }
   };
 
@@ -121,65 +152,71 @@ export const CandidateProfile: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5 }}>
                 CV Status
               </Typography>
-              {cv ? (
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, p: 1.5, borderRadius: 2, bgcolor: alpha('#4CAF50', 0.06) }}>
+              
+              {cv && (
+                <Box sx={{ mb: 2.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5, p: 1.5, borderRadius: 2, bgcolor: alpha('#7EC845', 0.06), border: `1px solid ${alpha('#7EC845', 0.15)}` }}>
                     <DescriptionIcon color="primary" />
-                    <Typography variant="body2" noWrap sx={{ fontWeight: 500 }}>{cv.file_name}</Typography>
+                    <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>{cv.file_name}</Typography>
                   </Box>
                   <Chip
                     label={cv.status}
                     color={cv.status === 'PROCESSED' ? 'success' : 'warning'}
                     size="small"
-                    sx={{ mb: 2, borderRadius: 1.5 }}
+                    sx={{ borderRadius: 1.5, fontWeight: 700 }}
                   />
-                  <Divider sx={{ my: 2 }} />
-                  <input
-                    accept="application/pdf"
-                    style={{ display: 'none' }}
-                    id="update-cv-upload"
-                    type="file"
-                    onChange={handleFileUpload}
-                  />
-                  <label htmlFor="update-cv-upload">
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      component="span"
-                      startIcon={isUploading ? <CircularProgress size={20} /> : <UploadIcon />}
-                      disabled={isUploading}
-                      sx={{ borderRadius: 2 }}
-                    >
-                      Update CV
-                    </Button>
-                  </label>
-                </Box>
-              ) : (
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                    You haven't uploaded a CV yet. Upload one to start matching with jobs!
-                  </Typography>
-                  <input
-                    accept="application/pdf"
-                    style={{ display: 'none' }}
-                    id="new-cv-upload"
-                    type="file"
-                    onChange={handleFileUpload}
-                  />
-                  <label htmlFor="new-cv-upload">
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      component="span"
-                      startIcon={isUploading ? <CircularProgress size={20} color="inherit" /> : <UploadIcon />}
-                      disabled={isUploading}
-                      sx={{ borderRadius: 2 }}
-                    >
-                      Upload CV
-                    </Button>
-                  </label>
                 </Box>
               )}
+
+              <Box
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                sx={{
+                  p: 3,
+                  border: '2px dashed',
+                  borderColor: isDragging ? '#7EC845' : alpha('#1B2A4A', 0.15),
+                  borderRadius: 3,
+                  bgcolor: isDragging ? alpha('#7EC845', 0.06) : alpha('#1B2A4A', 0.02),
+                  textAlign: 'center',
+                  transition: 'all 200ms ease',
+                  transform: isDragging ? 'scale(1.02)' : 'none',
+                  boxShadow: isDragging ? '0 6px 20px rgba(126, 200, 69, 0.12)' : 'none',
+                  '&:hover': {
+                    borderColor: '#7EC845',
+                    bgcolor: alpha('#7EC845', 0.02)
+                  }
+                }}
+              >
+                <UploadIcon sx={{ fontSize: 32, color: isDragging ? '#7EC845' : 'text.secondary', mb: 1 }} />
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  {isDragging ? 'DROP TO UPLOAD!' : cv ? 'Update Resume Spec' : 'Upload Resume Spec'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2, lineHeight: 1.3 }}>
+                  {isDragging ? 'Release file now' : 'Drag & drop your PDF CV here or click to browse'}
+                </Typography>
+                <input
+                  accept="application/pdf"
+                  style={{ display: 'none' }}
+                  id="profile-cv-upload"
+                  type="file"
+                  onChange={handleFileUpload}
+                  disabled={isUploading}
+                />
+                <label htmlFor="profile-cv-upload">
+                  <Button
+                    variant="contained"
+                    component="span"
+                    size="small"
+                    disabled={isUploading}
+                    startIcon={isUploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />}
+                    sx={{ borderRadius: 2, textTransform: 'none', px: 2.5 }}
+                  >
+                    {isUploading ? 'Uploading...' : 'Browse Files'}
+                  </Button>
+                </label>
+              </Box>
+
               {error && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{error}</Alert>}
             </CardContent>
           </Card>

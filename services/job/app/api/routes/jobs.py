@@ -173,6 +173,17 @@ async def upload_job_description(file: UploadFile = File(...)):
             logger = logging.getLogger(__name__)
             logger.warning(f"pypdf extraction failed, falling back: {e}")
             text = content_bytes.decode("utf-8", errors="ignore")
+    elif filename.lower().endswith(".docx") or filename.lower().endswith(".doc"):
+        try:
+            import docx
+            import io
+            doc = docx.Document(io.BytesIO(content_bytes))
+            text = "\n".join([para.text for para in doc.paragraphs])
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"docx extraction failed, falling back: {e}")
+            text = content_bytes.decode("utf-8", errors="ignore")
     else:
         # Default decode as plain text
         text = content_bytes.decode("utf-8", errors="ignore")
