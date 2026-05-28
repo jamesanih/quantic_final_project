@@ -2,21 +2,21 @@ http://178.105.255.240 {
     # 1. Reverse proxy microservice API gateway paths to localhost ports
     
     # Identity service (Auth)
-    reverse_proxy /api/auth/* 127.0.0.1:8001
+    reverse_proxy /api/auth* 127.0.0.1:8001
     
     # CV service (Uploads / Ner Parsing)
-    reverse_proxy /api/cvs/* 127.0.0.1:8002
+    reverse_proxy /api/cvs* 127.0.0.1:8002
     
     # Vector service (Embeddings / Search)
-    reverse_proxy /api/vectors/* 127.0.0.1:8003
+    reverse_proxy /api/vectors* 127.0.0.1:8003
     
     # Matching service (AI Scoring)
-    reverse_proxy /api/matching/* 127.0.0.1:8004
+    reverse_proxy /api/matching* 127.0.0.1:8004
     
     # Job service (Jobs, Shortlists, Applications)
-    reverse_proxy /api/jobs/* 127.0.0.1:8005
-    reverse_proxy /api/applications/* 127.0.0.1:8005
-    reverse_proxy /api/shortlists/* 127.0.0.1:8005
+    reverse_proxy /api/jobs* 127.0.0.1:8005
+    reverse_proxy /api/applications* 127.0.0.1:8005
+    reverse_proxy /api/shortlists* 127.0.0.1:8005
 
     # 2. Serve static React frontend for all other requests
     reverse_proxy 127.0.0.1:3009

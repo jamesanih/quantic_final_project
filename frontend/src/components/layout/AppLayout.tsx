@@ -76,8 +76,12 @@ export const AppLayout: React.FC = () => {
       const fetchShortlistCount = async () => {
         try {
           const lists = await shortlistApi.getShortlists();
-          const total = lists.reduce((acc, list) => acc + list.candidates.length, 0);
-          setShortlistCount(total);
+          if (Array.isArray(lists)) {
+            const total = lists.reduce((acc, list) => acc + (list.candidates?.length || 0), 0);
+            setShortlistCount(total);
+          } else {
+            setShortlistCount(0);
+          }
         } catch (err) { 
           console.error('Failed to fetch shortlist count:', err);
         }

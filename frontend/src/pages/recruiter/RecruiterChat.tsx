@@ -71,6 +71,9 @@ export const RecruiterChat: React.FC = () => {
   const handleShortlist = async (c: SearchResult) => {
     try {
       const lists = await shortlistApi.getShortlists();
+      if (!Array.isArray(lists)) {
+        throw new Error("Expected an array of shortlists");
+      }
       let listId: string;
       const targetName = 'AI Chat Picks';
       

@@ -35,9 +35,13 @@ export const ShortlistsPage: React.FC = () => {
   const fetchShortlists = async () => {
     try {
       const data = await shortlistApi.getShortlists();
-      setShortlists(data);
-      if (data.length > 0 && !expandedId) {
-        setExpandedId(data[0].id);
+      if (Array.isArray(data)) {
+        setShortlists(data);
+        if (data.length > 0 && !expandedId) {
+          setExpandedId(data[0].id);
+        }
+      } else {
+        setShortlists([]);
       }
     } catch { /* silent */ } finally { setIsLoading(false); }
   };

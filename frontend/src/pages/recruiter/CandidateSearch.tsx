@@ -116,6 +116,9 @@ export const CandidateSearch: React.FC = () => {
   const handleShortlist = async (candidate: SearchResult) => {
     try {
       const lists = await shortlistApi.getShortlists();
+      if (!Array.isArray(lists)) {
+        throw new Error("Expected an array of shortlists");
+      }
       let listId: string;
       
       const job = jobs.find(j => j.id === selectedJobId);
