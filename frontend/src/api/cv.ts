@@ -29,4 +29,8 @@ export const cvApi = {
     const response = await apiClient.get('/api/cvs/me');
     return response.data;
   },
+
+  deleteCV: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/cvs/${id}`);
+  },
 };

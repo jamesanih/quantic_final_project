@@ -105,3 +105,49 @@ async def get_job(job_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     return job
+
+@router.put("/{job_id}", response_model=JobResponse)
+async def update_job(
+    job_id: uuid.UUID, 
+    body: JobCreate, 
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(JobModel).where(JobModel.id == job_id)
+    result = await db.execute(stmt)
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job.title = body.title
+    job.description = body.description
+    job.requirements = body.requirements
+    job.required_skills = body.required_skills
+    job.location = body.location
+    job.sector = body.sector
+    job.status = body.status
+    job.client_name = body.client_name
+    
+    await db.commit()
+    await db.refresh(job)
+    return job
+
+@router.delete("/{job_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_job(job_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    # 1. Nullify job_id on shortlists to avoid foreign key violations
+    from sqlalchemy import update
+    from app.infrastructure.database.models import ShortlistModel
+    await db.execute(
+        update(ShortlistModel)
+        .where(ShortlistModel.job_id == job_id)
+        .values(job_id=None)
+    )
+    
+    # 2. Get and delete the job
+    stmt = select(JobModel).where(JobModel.id == job_id)
+    result = await db.execute(stmt)
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    await db.delete(job)
+    await db.commit()
+    return None

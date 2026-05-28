@@ -21,6 +21,8 @@ import {
   DialogContent,
   DialogActions,
   Grid,
+  IconButton,
+  Stack,
 } from '@mui/material';
 import {
   CloudUpload as UploadIcon,
@@ -33,6 +35,7 @@ import {
   LocationOn as LocationIcon,
   Work as WorkIcon,
   School as SchoolIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { cvApi } from '../../api/cv';
 import type { CV } from '../../types';
@@ -90,6 +93,17 @@ export const CVManagement: React.FC = () => {
 
   const handleViewDetails = (cv: CV) => {
     setSelectedCv(cv);
+  };
+
+  const handleDeleteCV = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this CV? This will also remove the candidate from semantic vector search.")) {
+      try {
+        await cvApi.deleteCV(id);
+        setCvs(prev => prev.filter(c => c.id !== id));
+      } catch {
+        // silent
+      }
+    }
   };
 
   return (
@@ -206,13 +220,23 @@ export const CVManagement: React.FC = () => {
                       </TableCell>
                       <TableCell>{new Date(cv.uploaded_at).toLocaleDateString()}</TableCell>
                       <TableCell align="right">
-                        <Button 
-                          size="small" 
-                          sx={{ borderRadius: 2 }}
-                          onClick={() => handleViewDetails(cv)}
-                        >
-                          View Details
-                        </Button>
+                        <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+                          <Button 
+                            size="small" 
+                            sx={{ borderRadius: 2 }}
+                            onClick={() => handleViewDetails(cv)}
+                          >
+                            View Details
+                          </Button>
+                          <IconButton 
+                            size="small" 
+                            color="error" 
+                            sx={{ borderRadius: 1.5 }}
+                            onClick={() => handleDeleteCV(cv.id)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   );

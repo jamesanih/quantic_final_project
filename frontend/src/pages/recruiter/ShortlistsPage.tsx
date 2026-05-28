@@ -74,6 +74,15 @@ export const ShortlistsPage: React.FC = () => {
     } catch { /* silent */ }
   };
 
+  const handleDeleteShortlist = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this shortlist?")) {
+      try {
+        await shortlistApi.deleteShortlist(id);
+        await fetchShortlists();
+      } catch { /* silent */ }
+    }
+  };
+
   const toggleExpand = (id: string) => setExpandedId(expandedId === id ? null : id);
 
   return (
@@ -138,6 +147,15 @@ export const ShortlistsPage: React.FC = () => {
                       <Tooltip title={expandedId === shortlist.id ? "Hide candidates" : "View candidates"} arrow>
                         <IconButton onClick={() => toggleExpand(shortlist.id)} sx={{ borderRadius: 1.5 }}>
                           {expandedId === shortlist.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete Shortlist" arrow>
+                        <IconButton 
+                          color="error" 
+                          onClick={() => handleDeleteShortlist(shortlist.id)} 
+                          sx={{ borderRadius: 1.5 }}
+                        >
+                          <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     </Stack>

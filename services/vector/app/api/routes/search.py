@@ -170,3 +170,10 @@ async def add_candidate(body: AddCandidateRequest):
     """Simulate saving a CV to the vector DB by adding to the in-memory pool."""
     DEMO_CANDIDATES.append(body.dict())
     return {"status": "success", "candidate_id": body.candidate_id}
+
+@router.delete("/{candidate_id}", status_code=200)
+async def delete_candidate(candidate_id: str):
+    """Simulate deleting a candidate from the vector DB."""
+    global DEMO_CANDIDATES
+    DEMO_CANDIDATES[:] = [c for c in DEMO_CANDIDATES if c["candidate_id"] != candidate_id]
+    return {"status": "success"}

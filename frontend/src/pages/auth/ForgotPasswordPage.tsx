@@ -49,6 +49,34 @@ export const ForgotPasswordPage: React.FC = () => {
         backgroundColor: '#F8FAFC',
       }}
     >
+      <Button
+        component={RouterLink}
+        to="/"
+        startIcon={<ArrowBackIcon />}
+        sx={{
+          position: 'absolute',
+          top: { xs: 16, sm: 24 },
+          left: { xs: 16, sm: 24 },
+          zIndex: 10,
+          fontWeight: 600,
+          borderRadius: 2,
+          px: { xs: 1.5, sm: 2.5 },
+          py: { xs: 0.8, sm: 1 },
+          bgcolor: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(0,0,0,0.06)',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+          color: 'text.primary',
+          textTransform: 'none',
+          '&:hover': {
+            bgcolor: '#ffffff',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            transform: 'translateY(-1px)'
+          }
+        }}
+      >
+        Back to Home
+      </Button>
       {/* ── Animated gradient background ──────────────────── */}
       <Box
         sx={{

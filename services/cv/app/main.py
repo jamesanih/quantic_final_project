@@ -132,3 +132,36 @@ async def bulk_upload_cvs(files: List[UploadFile] = File(...)) -> list:
     for f in files:
         result.append(_build_cv(f"cv-{len(_cvs)+1:03d}", f.filename or "upload.pdf"))
     return result
+
+@app.delete("/api/cvs/{cv_id}", tags=["cvs"])
+async def delete_cv(cv_id: str) -> dict:
+    """Delete a CV by ID. Also removes it from the vector service."""
+    global _cvs
+    # 1. Find the CV
+    cv_to_delete = None
+    for cv in _cvs:
+        if cv["id"] == cv_id:
+            cv_to_delete = cv
+            break
+            
+    if not cv_to_delete:
+        return {"status": "error", "message": "CV not found"}
+        
+    # 2. Delete candidate from vector service (cand-cv_id)
+    try:
+        candidate_id = cv_to_delete["candidate_id"]
+        # In Docker network, vector is accessible at http://vector:8000
+        req = urllib.request.Request(
+            f"http://vector:8000/api/vectors/{candidate_id}",
+            method="DELETE"
+        )
+        with urllib.request.urlopen(req) as f:
+            pass
+        logger.info(f"Deleted vector index for candidate {candidate_id}")
+    except Exception as e:
+        logger.warning(f"Vector delete failed: {e}")
+        
+    # 3. Remove CV from local in-memory list
+    _cvs[:] = [cv for cv in _cvs if cv["id"] != cv_id]
+    
+    return {"status": "success", "id": cv_id}

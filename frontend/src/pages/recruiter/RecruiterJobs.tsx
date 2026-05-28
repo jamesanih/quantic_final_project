@@ -14,7 +14,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppStore';
-import { fetchJobs, createJob } from '../../store/slices/jobSlice';
+import { fetchJobs, createJob, updateJob, deleteJob } from '../../store/slices/jobSlice';
 import { vectorApi } from '../../api/vector';
 import { shortlistApi } from '../../api/matching';
 import type { Job, SearchResult } from '../../types';
@@ -34,6 +34,7 @@ export const RecruiterJobs: React.FC = () => {
   const { jobs, isLoading } = useAppSelector((state) => state.jobs);
 
   const [open, setOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [recommendationsOpen, setRecommendationsOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<SearchResult[]>([]);
   const [isRecommending, setIsRecommending] = useState(false);
@@ -51,23 +52,33 @@ export const RecruiterJobs: React.FC = () => {
 
   const handleCreate = async () => {
     try {
-      const resultAction = await dispatch(createJob(newJob));
-      if (createJob.fulfilled.match(resultAction)) {
-        setLastCreatedJob(resultAction.payload as Job);
-        handleClose();
-        setIsRecommending(true);
-        setRecommendationsOpen(true);
-        try {
-          const resp = await vectorApi.search({ query: `${newJob.title} ${newJob.requirements}`, limit: 5 });
-          setRecommendations(resp.candidates);
-        } catch { /* silent */ }
-        finally { setIsRecommending(false); }
+      if (isEditing && newJob.id) {
+        const resultAction = await dispatch(updateJob({ id: newJob.id, data: newJob }) as any);
+        if (updateJob.fulfilled.match(resultAction)) {
+          handleClose();
+        }
+      } else {
+        const resultAction = await dispatch(createJob(newJob) as any);
+        if (createJob.fulfilled.match(resultAction)) {
+          setLastCreatedJob(resultAction.payload as Job);
+          handleClose();
+          setIsRecommending(true);
+          setRecommendationsOpen(true);
+          try {
+            const resp = await vectorApi.search({ query: `${newJob.title} ${newJob.requirements}`, limit: 5 });
+            setRecommendations(resp.candidates);
+          } catch { /* silent */ }
+          finally { setIsRecommending(false); }
+        }
       }
     } catch { /* silent */ }
-    setNewJob({ title: '', description: '', requirements: '', required_skills: [], location: '', sector: 'IT', status: 'OPEN', salary_range: '' });
   };
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setIsEditing(false);
+    setNewJob({ title: '', description: '', requirements: '', required_skills: [], location: '', sector: 'IT', status: 'OPEN', salary_range: '' });
+  };
   const handleShortlist = async (c: SearchResult) => {
     try {
       const lists = await shortlistApi.getShortlists();
@@ -172,10 +183,10 @@ export const RecruiterJobs: React.FC = () => {
                         <Button size="small" variant="text" startIcon={<PsychologyIcon />} onClick={() => navigate(`/recruiter/search?jobId=${job.id}`)} sx={{ borderRadius: 2 }}>AI Match</Button>
                       </Tooltip>
                       <Tooltip title="Edit this mandate" arrow>
-                        <IconButton size="small" sx={{ borderRadius: 1.5 }} onClick={() => { setNewJob(job); setOpen(true); }}><EditIcon fontSize="small" /></IconButton>
+                        <IconButton size="small" sx={{ borderRadius: 1.5 }} onClick={() => { setNewJob(job); setIsEditing(true); setOpen(true); }}><EditIcon fontSize="small" /></IconButton>
                       </Tooltip>
                       <Tooltip title="Delete this position" arrow>
-                        <IconButton size="small" color="error" sx={{ borderRadius: 1.5 }} onClick={() => dispatch(fetchJobs({}) as any)}><DeleteIcon fontSize="small" /></IconButton>
+                        <IconButton size="small" color="error" sx={{ borderRadius: 1.5 }} onClick={() => { if (window.confirm("Are you sure you want to delete this position?")) { dispatch(deleteJob(job.id) as any); } }}><DeleteIcon fontSize="small" /></IconButton>
                       </Tooltip>
                     </Box>
                   </CardContent>
@@ -189,7 +200,7 @@ export const RecruiterJobs: React.FC = () => {
       {/* ── Create Dialog ──────────────────────────────────── */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}>
         <Box sx={{ background: `linear-gradient(135deg, ${alpha('#1B2A4A', 0.06)}, ${alpha('#7EC845', 0.04)})`, px: 3, py: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <DialogTitle sx={{ p: 0, fontWeight: 700, fontSize: '1.25rem' }}>Post New Position</DialogTitle>
+          <DialogTitle sx={{ p: 0, fontWeight: 700, fontSize: '1.25rem' }}>{isEditing ? 'Edit Mandate' : 'Post New Position'}</DialogTitle>
         </Box>
         <DialogContent sx={{ p: 3 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
@@ -207,7 +218,7 @@ export const RecruiterJobs: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button onClick={handleClose} sx={{ borderRadius: 2 }}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreate} disabled={!newJob.title} sx={{ borderRadius: 2, px: 4 }}>Post Job & Match</Button>
+          <Button variant="contained" onClick={handleCreate} disabled={!newJob.title} sx={{ borderRadius: 2, px: 4 }}>{isEditing ? 'Save Changes' : 'Post Job & Match'}</Button>
         </DialogActions>
       </Dialog>
 

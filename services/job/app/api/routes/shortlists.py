@@ -191,3 +191,14 @@ async def get_shortlist(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     if not shortlist:
         raise HTTPException(status_code=404, detail="Shortlist not found")
     return shortlist
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_shortlist(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    stmt = select(ShortlistModel).where(ShortlistModel.id == id)
+    result = await db.execute(stmt)
+    shortlist = result.scalar_one_or_none()
+    if not shortlist:
+        raise HTTPException(status_code=404, detail="Shortlist not found")
+    await db.delete(shortlist)
+    await db.commit()
+    return None

@@ -56,6 +56,31 @@ export const createJob = createAsyncThunk(
   }
 );
 
+export const updateJob = createAsyncThunk(
+  'jobs/updateJob',
+  async ({ id, data }: { id: string; data: Partial<Job> }, { rejectWithValue }) => {
+    try {
+      return await jobApi.updateJob(id, data);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      return rejectWithValue(err.response?.data?.detail || 'Failed to update job');
+    }
+  }
+);
+
+export const deleteJob = createAsyncThunk(
+  'jobs/deleteJob',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await jobApi.deleteJob(id);
+      return id;
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      return rejectWithValue(err.response?.data?.detail || 'Failed to delete job');
+    }
+  }
+);
+
 const jobSlice = createSlice({
   name: 'jobs',
   initialState,
@@ -90,6 +115,17 @@ const jobSlice = createSlice({
       })
       .addCase(createJob.fulfilled, (state, action) => {
         state.jobs.unshift(action.payload);
+        state.total += 1;
+      })
+      .addCase(updateJob.fulfilled, (state, action) => {
+        const index = state.jobs.findIndex(j => j.id === action.payload.id);
+        if (index !== -1) {
+          state.jobs[index] = action.payload;
+        }
+      })
+      .addCase(deleteJob.fulfilled, (state, action) => {
+        state.jobs = state.jobs.filter(j => j.id !== action.payload);
+        state.total = state.jobs.length;
       });
   },
 });

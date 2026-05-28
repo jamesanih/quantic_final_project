@@ -57,4 +57,8 @@ export const shortlistApi = {
     });
     return response.data;
   },
+
+  deleteShortlist: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/shortlists/${id}`);
+  },
 };
