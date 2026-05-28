@@ -132,18 +132,21 @@ async def search(
                 matched_skills=c["skills"],
                 missing_skills=[],
                 rationale="Direct match in the database."
-            ) for c in pool[:body.limit]
+            ) for c in pool[body.page : body.page + body.limit]
         ]
         return SearchResponse(candidates=candidates, total_count=len(pool))
 
+    # Request a larger scored pool from the LLM so we have enough items to paginate
+    llm_limit = max(body.page + body.limit, 50)
     result = await llm.semantic_search(
         query=search_query,
         candidates=pool,
-        limit=body.limit,
+        limit=llm_limit,
     )
 
     candidates_raw = result.get("candidates", [])
-    total = result.get("total_count", len(candidates_raw))
+    # If the LLM scored all of them, the total count is the size of the filtered pool
+    total = result.get("total_count", len(pool))
 
     candidates = [
         SearchResult(
@@ -157,7 +160,10 @@ async def search(
         for c in candidates_raw
     ]
 
-    return SearchResponse(candidates=candidates, total_count=total)
+    # Slice the scored candidates according to the pagination offset (body.page)
+    candidates_sliced = candidates[body.page : body.page + body.limit]
+
+    return SearchResponse(candidates=candidates_sliced, total_count=total)
 
 @router.post("/add", status_code=201)
 async def add_candidate(body: AddCandidateRequest):

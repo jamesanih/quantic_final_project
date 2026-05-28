@@ -50,25 +50,43 @@ export const CandidateSearch: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      await dispatch(fetchJobs({}) as any);
+      const result = await dispatch(fetchJobs({}) as any);
       
       // Handle jobId from query params
       const params = new URLSearchParams(location.search);
       const jobId = params.get('jobId');
       if (jobId) {
         setSelectedJobId(jobId);
-        dispatch(searchCandidates({ job_id: jobId, limit: 10, page: 0 }));
+        
+        // Auto-populate Sector and Location from the query-param job
+        const fetchedJobs = result.payload || [];
+        const job = fetchedJobs.find((j: any) => j.id === jobId);
+        if (job) {
+          setFilters({
+            sector: job.sector || '',
+            location: job.location || '',
+            minExperience: 0,
+          });
+        }
+        
+        dispatch(searchCandidates({ 
+          job_id: jobId, 
+          limit: 10, 
+          page: 0,
+          sector: job?.sector || undefined,
+          location: job?.location || undefined,
+        }));
       }
     };
     init();
   }, [dispatch, location.search]);
 
-  const handleSearch = () => {
+  const handleSearch = (pageNumber: number = page) => {
     dispatch(searchCandidates({
       query: query || undefined,
       job_id: selectedJobId || undefined,
       limit: 10,
-      page: (page - 1) * 10,
+      page: (pageNumber - 1) * 10,
       sector: filters.sector || undefined,
       location: filters.location || undefined,
       min_experience: filters.minExperience || undefined,
@@ -86,6 +104,12 @@ export const CandidateSearch: React.FC = () => {
           location: job.location || '',
         });
       }
+    } else {
+      setFilters({
+        sector: '',
+        location: '',
+        minExperience: 0,
+      });
     }
   };
 
@@ -224,8 +248,11 @@ export const CandidateSearch: React.FC = () => {
                 fullWidth
                 variant="contained"
                 size="large"
-                onClick={handleSearch}
-                disabled={isLoading || (!query && !selectedJobId)}
+                onClick={() => {
+                  setPage(1);
+                  handleSearch(1);
+                }}
+                disabled={isLoading}
                 startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : (selectedJobId ? <PsychologyIcon /> : <SearchIcon />)}
                 sx={{ height: 56 }}
               >
@@ -341,7 +368,7 @@ export const CandidateSearch: React.FC = () => {
               page={page}
               onChange={(_, value) => {
                 setPage(value);
-                handleSearch();
+                handleSearch(value);
               }}
               color="primary"
             />
