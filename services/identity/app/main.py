@@ -1,11 +1,9 @@
 from contextlib import asynccontextmanager
 import logging
 
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from fastapi import FastAPI
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from tumaini_shared.api.app import create_app
 
@@ -32,7 +30,7 @@ async def _run_migrations():
         ini_path = os.path.join(base_dir, "alembic.ini")
         scripts_dir = os.path.join(base_dir, "alembic")
         
-        logger.info(f"Identity service migration: checking paths...")
+        logger.info("Identity service migration: checking paths...")
         logger.info(f" - Ini path: {ini_path} (Exists: {os.path.exists(ini_path)})")
         logger.info(f" - Scripts dir: {scripts_dir} (Exists: {os.path.exists(scripts_dir)})")
         
@@ -63,7 +61,7 @@ async def _seed_admin():
             if existing:
                 logger.info("Admin user already exists — skipping seed.")
                 return
-            user = await auth_service.register(
+            await auth_service.register(
                 email="admin@tumaini.ai",
                 plain_password="AdminPassword123!",
                 full_name="System Administrator",

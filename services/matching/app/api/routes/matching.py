@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.infrastructure.llm import get_llm_provider, LLMProvider
 

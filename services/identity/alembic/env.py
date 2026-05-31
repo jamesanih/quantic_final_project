@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 # Import models so Alembic detects them for autogenerate
 from app.infrastructure.database.engine import Base
 import app.infrastructure.database.models  # noqa: F401
-from app.config import get_settings
 
 config = context.config
 if config.config_file_name:

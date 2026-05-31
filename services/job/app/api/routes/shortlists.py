@@ -121,7 +121,7 @@ async def export_shortlist(
         raise HTTPException(status_code=404, detail="Shortlist not found")
 
     if format == "excel":
-        content = f"Name,Score,Skills,Added At,Notes\n"
+        content = "Name,Score,Skills,Added At,Notes\n"
         for c in sl.candidates:
             skills = ", ".join(c.matched_skills)
             content += f"\"{c.name}\",{c.score:.0f}%,\"{skills}\",\"{c.added_at.strftime('%Y-%m-%d')}\",\"{c.notes or ''}\"\n"

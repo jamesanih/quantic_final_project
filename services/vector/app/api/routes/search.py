@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Optional, List
+from typing import Optional
 import urllib.request
 import json
 import logging
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.infrastructure.llm import get_llm_provider, LLMProvider
 

@@ -1,5 +1,8 @@
 """End-to-end registration flow tests. Run: python3 tests/test_registration.py"""
-import urllib.request, json, sys, time
+import urllib.request
+import json
+import sys
+import time
 
 BASE = "http://localhost:8001/api/auth"
 PASSED = FAILED = 0
@@ -8,9 +11,11 @@ def _run_test_case(name, fn):
     global PASSED, FAILED
     try:
         fn()
-        PASSED += 1; print(f"  PASS {name}")
+        PASSED += 1
+        print(f"  PASS {name}")
     except Exception as e:
-        FAILED += 1; print(f"  FAIL {name}: {e}")
+        FAILED += 1
+        print(f"  FAIL {name}: {e}")
 
 def api(method, path, data=None):
     url = BASE + path

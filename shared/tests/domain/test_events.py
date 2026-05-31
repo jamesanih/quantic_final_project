@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from tumaini_shared.domain.events import DomainEvent, InMemoryEventBus, event_handler
+from tumaini_shared.domain.events import DomainEvent, InMemoryEventBus
 
 
 # ---------------------------------------------------------------------------

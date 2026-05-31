@@ -1,6 +1,5 @@
 import uuid
 
-import pytest
 
 from tumaini_shared.domain.base import Entity
 from tumaini_shared.domain.repository import (

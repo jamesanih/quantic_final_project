@@ -9,15 +9,12 @@ sys.path.append(os.path.join(os.getcwd(), "services/identity"))
 from app.application.services.auth_service import AuthService
 from app.infrastructure.database.engine import AsyncSessionLocal
 from app.infrastructure.database.user_repository import PostgresUserRepository
-from app.infrastructure.security.token_service import TokenService
 from app.domain.user.value_objects import Role, Email
-from app.config import get_settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def seed_admin():
-    settings = get_settings()
     async with AsyncSessionLocal() as session:
         user_repo = PostgresUserRepository(session)
         # TokenService needs a redis client, but we don't need it just to register

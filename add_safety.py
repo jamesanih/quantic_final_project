@@ -1,5 +1,4 @@
 import os
-import re
 
 def add_safety_checks(content):
     # Fix jobs.filter

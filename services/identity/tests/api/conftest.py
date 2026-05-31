@@ -20,7 +20,7 @@ from app.application.services.auth_service import AuthService
 from app.config import get_settings
 from app.domain.user.aggregate import User
 from app.domain.user.repository import UserRepository
-from app.domain.user.value_objects import Email, Role
+from app.domain.user.value_objects import Email
 from app.infrastructure.security.token_service import TokenService
 from app.main import app
 

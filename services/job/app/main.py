@@ -4,13 +4,13 @@ import logging
 from fastapi import FastAPI
 from tumaini_shared.api.app import create_app
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 from app.api.routes import jobs, shortlists
 from app.infrastructure.database.engine import engine, Base, AsyncSessionLocal
 from app.infrastructure.database.models import JobModel
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DEMO_JOBS = [
     {

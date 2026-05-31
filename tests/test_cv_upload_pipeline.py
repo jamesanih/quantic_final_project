@@ -1,6 +1,5 @@
 import requests
 import os
-import json
 
 def test_cv_upload():
     print("--- Testing CV Upload Pipeline ---")

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Optional
 
 import aio_pika
 import aio_pika.abc

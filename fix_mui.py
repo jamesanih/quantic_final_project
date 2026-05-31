@@ -22,9 +22,12 @@ def fix_mui_v9(content):
         sm_match = re.search(r'sm={(\d+)}', props)
         
         size_parts = []
-        if xs_match: size_parts.append(f'xs: {xs_match.group(1)}')
-        if sm_match: size_parts.append(f'sm: {sm_match.group(1)}')
-        if md_match: size_parts.append(f'md: {md_match.group(1)}')
+        if xs_match:
+            size_parts.append(f'xs: {xs_match.group(1)}')
+        if sm_match:
+            size_parts.append(f'sm: {sm_match.group(1)}')
+        if md_match:
+            size_parts.append(f'md: {md_match.group(1)}')
         
         if size_parts:
             new_size = f'size={{{{ {", ".join(size_parts)} }}}}'

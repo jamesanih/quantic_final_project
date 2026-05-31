@@ -3,11 +3,10 @@ import io
 import json
 import logging
 import urllib.request
-from typing import List, Optional
+from typing import List
 
 import docx
 import pdfplumber
-import spacy
 from fastapi import File, UploadFile
 from openai import AsyncOpenAI
 from pydantic import BaseModel
@@ -98,7 +97,7 @@ async def save_to_vector_db(cv_data: dict):
         )
         # Using a simple synchronous call for now as per existing pattern, 
         # but in a real app this should be async httpx
-        with urllib.request.urlopen(req) as f:
+        with urllib.request.urlopen(req):
             pass
         logger.info(f"Indexed {cv_data['candidate_id']} in vector DB")
     except Exception as e:
@@ -238,7 +237,7 @@ async def delete_cv(cv_id: str) -> dict:
             f"http://vector:8000/api/vectors/{candidate_id}",
             method="DELETE"
         )
-        with urllib.request.urlopen(req) as f:
+        with urllib.request.urlopen(req):
             pass
         logger.info(f"Deleted vector index for candidate {candidate_id}")
     except Exception as e:
