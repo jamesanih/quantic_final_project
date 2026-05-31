@@ -36,10 +36,10 @@ jobs:
       uses: astral-sh/setup-uv@v2
     - name: Set up Python
       run: uv python install 3.12
+    - name: Install Dependencies
+      run: uv sync --all-packages
     - name: Check Formatting (Ruff)
-      run: |
-        uv pip install ruff
-        uvx ruff check .
+      run: uv run ruff check .
     - name: Run Shared Kernel Tests
       run: uv run pytest shared/tests
     - name: Run Identity Service Tests
