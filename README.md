@@ -122,6 +122,22 @@ docker compose up -d
 
 ---
 
+## CI/CD Pipeline
+
+The project features a fully automated **GitHub Actions** pipeline (`.github/workflows/main.yml`) that ensures code quality and handles production deployment:
+
+1.  **Continuous Integration (CI)**:
+    *   **Frontend**: Automatically builds the React application to catch compilation errors.
+    *   **Backend**: Runs **Ruff** for linting and executes the full suite of **Pytest** unit tests for the shared kernel and microservices.
+2.  **Continuous Deployment (CD)**:
+    *   Triggered automatically ONLY when code is pushed to the `main` branch and all CI tests have passed.
+    *   Connects to the Hetzner production server via SSH.
+    *   Synchronizes the latest code and executes `./deploy/launch.sh` to rebuild and restart the production containers.
+
+> **Note**: For CD to function, the following GitHub Secrets must be configured in the repository: `SERVER_IP` and `SSH_PRIVATE_KEY`.
+
+---
+
 ## Deployment
 
 The platform is designed for production-ready deployment on **Hetzner Cloud** using the optimized configurations in the `deploy/` directory.

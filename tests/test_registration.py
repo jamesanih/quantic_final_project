@@ -4,7 +4,7 @@ import urllib.request, json, sys, time
 BASE = "http://localhost:8001/api/auth"
 PASSED = FAILED = 0
 
-def test(name, fn):
+def _run_test_case(name, fn):
     global PASSED, FAILED
     try:
         fn()
@@ -49,6 +49,6 @@ def test_nonexistent():
 if __name__ == "__main__":
     print("Registration Tests\n")
     for n, f in [("Register candidate", test_register_candidate), ("Register + login", test_register_then_login), ("Duplicate rejected", test_duplicate), ("Wrong password", test_wrong_password), ("Nonexistent user", test_nonexistent)]:
-        test(n, f)
+        _run_test_case(n, f)
     print(f"\n{PASSED} passed, {FAILED} failed")
     sys.exit(1 if FAILED else 0)

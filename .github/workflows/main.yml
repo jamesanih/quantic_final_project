@@ -1,0 +1,69 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # CI: Verification Phase
+  # ---------------------------------------------------------------------------
+  ci-frontend:
+    name: Frontend Build & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+    - run: npm ci
+    - run: npm run build
+
+  ci-backend:
+    name: Backend Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+    - name: Set up Python
+      run: uv python install 3.12
+    - name: Check Formatting (Ruff)
+      run: |
+        uv pip install ruff
+        uvx ruff check .
+    - name: Run Shared Kernel Tests
+      run: uv run pytest shared/tests
+    - name: Run Identity Service Tests
+      run: uv run pytest services/identity/tests/domain
+
+  # ---------------------------------------------------------------------------
+  # CD: Deployment Phase (Only on push to main after CI passes)
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Production Deployment
+    needs: [ci-frontend, ci-backend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Execute Remote Deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: root
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /root/quantic_final_project-main
+          # Fetch and reset to ensure exact match with remote main
+          git fetch origin main
+          git reset --hard origin/main
+          # Redeploy all containers
+          sudo ./deploy/launch.sh
